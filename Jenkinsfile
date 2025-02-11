@@ -4,9 +4,6 @@ pipeline {
     environment {
         DATA_PATH = ""  // Les fichiers sont à la racine, donc pas de sous-dossier
         MODEL_PATH = "models/"
-        DOCKER_IMAGE_NAME_PREPROCESSING = "mini-projet-preprocessing"
-        DOCKER_IMAGE_NAME_TRAINING = "mini-projet-training"
-        DOCKER_IMAGE_NAME_EVALUATION = "mini-projet-evaluation"
     }
 
     stages {
@@ -35,24 +32,24 @@ pipeline {
             }
         }
 
-        stage('Construire et lancer le conteneur Docker pour le prétraitement') {
+        stage('Prétraitement des données avec Docker') {
             steps {
-                bat 'docker build -f Dockerfile-preprocessing -t %DOCKER_IMAGE_NAME_PREPROCESSING% .'
-                bat 'docker run --rm -v %CD%:/app %DOCKER_IMAGE_NAME_PREPROCESSING% python preprocessing.py'
+                bat 'chcp 65001' // Définit l'encodage en UTF-8
+                bat 'python preprocessing.py'
             }
         }
 
-        stage('Construire et lancer le conteneur Docker pour l\'entraînement') {
+        stage('Entraînement du modèle') {
             steps {
-                bat 'docker build -f Dockerfile-train -t %DOCKER_IMAGE_NAME_TRAINING% .'
-                bat 'docker run --rm -v %CD%:/app %DOCKER_IMAGE_NAME_TRAINING% python train.py'
+                bat 'chcp 65001' // Définit l'encodage en UTF-8
+                bat 'python train.py'
             }
         }
 
-        stage('Construire et lancer le conteneur Docker pour l\'évaluation') {
+        stage('Évaluation du modèle') {
             steps {
-                bat 'docker build -f Dockerfile-evaluate -t %DOCKER_IMAGE_NAME_EVALUATION% .'
-                bat 'docker run --rm -v %CD%:/app %DOCKER_IMAGE_NAME_EVALUATION% python evaluate.py'
+                bat 'chcp 65001' // Définit l'encodage en UTF-8
+                bat 'python evaluate.py'
             }
         }
 
