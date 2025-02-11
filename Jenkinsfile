@@ -37,37 +37,22 @@ pipeline {
 
         stage('Construire et lancer le conteneur Docker pour le prétraitement') {
             steps {
-                script {
-                    // Construire l'image Docker pour le prétraitement
-                    sh 'docker build -f Dockerfile-preprocessing -t $DOCKER_IMAGE_NAME_PREPROCESSING .'
-                    
-                    // Exécuter le conteneur Docker pour le prétraitement
-                    sh 'docker run --rm -v $PWD:/app $DOCKER_IMAGE_NAME_PREPROCESSING python preprocessing.py'
-                }
+                bat 'docker build -f Dockerfile-preprocessing -t %DOCKER_IMAGE_NAME_PREPROCESSING% .'
+                bat 'docker run --rm -v %CD%:/app %DOCKER_IMAGE_NAME_PREPROCESSING% python preprocessing.py'
             }
         }
 
         stage('Construire et lancer le conteneur Docker pour l\'entraînement') {
             steps {
-                script {
-                    // Construire l'image Docker pour l'entraînement
-                    sh 'docker build -f Dockerfile-train -t $DOCKER_IMAGE_NAME_TRAINING .'
-                    
-                    // Exécuter le conteneur Docker pour l'entraînement
-                    sh 'docker run --rm -v $PWD:/app $DOCKER_IMAGE_NAME_TRAINING python train.py'
-                }
+                bat 'docker build -f Dockerfile-train -t %DOCKER_IMAGE_NAME_TRAINING% .'
+                bat 'docker run --rm -v %CD%:/app %DOCKER_IMAGE_NAME_TRAINING% python train.py'
             }
         }
 
         stage('Construire et lancer le conteneur Docker pour l\'évaluation') {
             steps {
-                script {
-                    // Construire l'image Docker pour l'évaluation
-                    sh 'docker build -f Dockerfile-evaluate -t $DOCKER_IMAGE_NAME_EVALUATION .'
-                    
-                    // Exécuter le conteneur Docker pour l'évaluation
-                    sh 'docker run --rm -v $PWD:/app $DOCKER_IMAGE_NAME_EVALUATION python evaluate.py'
-                }
+                bat 'docker build -f Dockerfile-evaluate -t %DOCKER_IMAGE_NAME_EVALUATION% .'
+                bat 'docker run --rm -v %CD%:/app %DOCKER_IMAGE_NAME_EVALUATION% python evaluate.py'
             }
         }
 
