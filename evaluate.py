@@ -1,4 +1,3 @@
-# evaluate.py
 import joblib
 import pandas as pd
 import seaborn as sns
@@ -28,11 +27,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 # Charger les modèles entraînés
 rf_model = joblib.load('rf_model.pkl')
-
+dt_model = joblib.load('dt_model.pkl')  # Charger le modèle Decision Tree
+ann_model = joblib.load('ann_model.pkl')  # Charger le modèle ANN
 
 # Prédictions après rééchantillonnage
 y_pred_rf = rf_model.predict(X_test)
-
+y_pred_dt = dt_model.predict(X_test)  # Prédictions pour le modèle Decision Tree
+y_pred_ann = ann_model.predict(X_test)  # Prédictions pour le modèle ANN
 
 # Évaluation des modèles après rééchantillonnage
 accuracy = {
@@ -44,5 +45,11 @@ accuracy = {
 # Affichage des résultats
 results_df = pd.DataFrame(list(accuracy.items()), columns=["Modèle", "Accuracy"])
 print("Résultats après rééchantillonnage :\n", results_df)
+
+# Optionnel: Visualisation des résultats
+sns.barplot(x="Modèle", y="Accuracy", data=results_df)
+plt.title("Précision des modèles après rééchantillonnage")
+plt.show()
+
 
 
