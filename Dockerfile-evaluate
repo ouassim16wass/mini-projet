@@ -1,0 +1,15 @@
+# Utilisation de l'image de base Python
+FROM python:3.9-slim
+
+# Définir le répertoire de travail
+WORKDIR /app
+
+# Copier le fichier requirements.txt et installer les dépendances
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copier le reste des fichiers du projet
+COPY . .
+
+# Commande par défaut (évaluation du modèle)
+CMD ["python", "evaluate.py"]
