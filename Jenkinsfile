@@ -34,7 +34,8 @@ pipeline {
                     echo "🚀 Démarrage du prétraitement des données..."
                     if (fileExists("${DATA_PATH}train.csv") && fileExists("${DATA_PATH}test.csv")) {
                         echo "✔️ Les fichiers de données existent, traitement lancé."
-                        // Si nécessaire, tu peux ajouter des scripts de prétraitement ici.
+                        // Lancer le prétraitement des données avec preprocessing.py
+                        bat 'python preprocessing.py || echo "❌ Erreur lors du prétraitement des données" && exit 1'
                     } else {
                         error "❌ Les fichiers de données train.csv et test.csv sont manquants."
                     }
