@@ -28,13 +28,11 @@ X_train, X_test, y_train, y_test = train_test_split(
 
 # Charger les modèles entraînés
 rf_model = joblib.load('rf_model.pkl')
-dt_model = joblib.load('dt_model.pkl')
-ann_model = joblib.load('ann_model.pkl')
+
 
 # Prédictions après rééchantillonnage
 y_pred_rf = rf_model.predict(X_test)
-y_pred_dt = dt_model.predict(X_test)
-y_pred_ann = ann_model.predict(X_test)
+
 
 # Évaluation des modèles après rééchantillonnage
 accuracy = {
@@ -47,8 +45,4 @@ accuracy = {
 results_df = pd.DataFrame(list(accuracy.items()), columns=["Modèle", "Accuracy"])
 print("Résultats après rééchantillonnage :\n", results_df)
 
-# Visualisation
-plt.figure(figsize=(10, 6))
-sns.barplot(x="Modèle", y="Accuracy", data=results_df, palette="viridis")
-plt.title("Performance des modèles après rééchantillonnage")
-plt.show()
+
