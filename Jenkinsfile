@@ -4,6 +4,7 @@ pipeline {
     environment {
         DATA_PATH = ""  // Les fichiers sont à la racine, donc pas de sous-dossier
         MODEL_PATH = "models/"
+        DOCKER_IMAGE_NAME = 'mini-projet'
     }
 
     stages {
@@ -25,31 +26,52 @@ pipeline {
             }
         }
 
-        stage('Installer les dépendances') {
+        stage('Construire l\'image Docker pour l\'application') {
             steps {
-                bat 'chcp 65001' // Définit l'encodage en UTF-8
-                bat 'python -m pip install --no-cache-dir -r requirements.txt || exit 1'
+                script {
+                    // Créer l'image Docker à partir du Dockerfile
+                    sh 'docker build -t $DOCKER_IMAGE_NAME:latest .'
+                }
             }
         }
 
         stage('Prétraitement des données avec Docker') {
             steps {
-                bat 'chcp 65001' // Définit l'encodage en UTF-8
-                bat 'python preprocessing.py'
+                script {
+                    // Lancer le conteneur pour le prétraitement des données
+                    sh 'docker run --rm -v $(pwd):/app $DOCKER_IMAGE_NAME:latest python preprocessing.py'
+                }
             }
         }
 
         stage('Entraînement du modèle') {
             steps {
-                bat 'chcp 65001' // Définit l'encodage en UTF-8
-                bat 'python train.py'
+                script {
+                    // Lancer le conteneur pour l'entraînement du modèle
+                    sh 'docker run --rm -v $(pwd):/app $DOCKER_IMAGE_NAME:latest python train.py'
+                }
             }
         }
 
         stage('Évaluation du modèle') {
             steps {
-                bat 'chcp 65001' // Définit l'encodage en UTF-8
-                bat 'python evaluate.py'
+                script {
+                    // Lancer le conteneur pour l'évaluation du modèle
+                    sh 'docker run --rm -v $(pwd):/app $DOCKER_IMAGE_NAME:latest python evaluate.py'
+                }
+            }
+        }
+
+        stage('Pousser l\'image Docker sur DockerHub') {
+            steps {
+                script {
+                    // Se connecter à DockerHub avec les identifiants Jenkins
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+                        // Pousser l'image Docker sur DockerHub
+                        sh 'docker push $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest'
+                    }
+                }
             }
         }
 
