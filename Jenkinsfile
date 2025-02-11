@@ -1,59 +1,76 @@
 pipeline {
     agent any
 
+    environment {
+        DATA_PATH = ""  // Les fichiers sont à la racine, donc pas de sous-dossier
+        MODEL_PATH = "models/"
+    }
+
     stages {
-        stage('Installation des dépendances') {
+        stage('Cloner le code') {
             steps {
-                // Créer un environnement virtuel pour Python
-                bat 'python -m venv venv'
-                bat '.\\venv\\Scripts\\pip install --upgrade pip'
-                bat '.\\venv\\Scripts\\pip install -r requirements.txt' // Assurez-vous que requirements.txt contient les dépendances nécessaires
+                git branch: 'main', url: 'https://github.com/ouassim16wass/mini-projet.git'
             }
         }
 
-        stage('Prétraitement des données') {
+        stage('Vérifier les fichiers de données') {
             steps {
-                // Exécuter le script preprocessing.py
-                bat '.\\venv\\Scripts\\python preprocessing.py'
+                script {
+                    if (fileExists('train.csv') && fileExists('test.csv')) {
+                        echo "✔️ Les fichiers de données existent, traitement lancé."
+                    } else {
+                        error "❌ Les fichiers de données train.csv et test.csv sont manquants."
+                    }
+                }
             }
         }
 
-        stage('Entraînement des modèles') {
+        stage('Installer les dépendances') {
             steps {
-                // Exécuter le script d'entraînement des modèles
-                bat '.\\venv\\Scripts\\python train.py'
+                bat 'python -m pip install --no-cache-dir -r requirements.txt || exit 1'
             }
         }
 
-        stage('Évaluation des modèles') {
+        stage('Prétraitement des données avec Docker') {
             steps {
-                // Exécuter le script d'évaluation des modèles
-                bat '.\\venv\\Scripts\\python evaluate.py'
+                bat '''
+                echo "🚀 Début du prétraitement des données..."
+                python preprocessing.py || echo "❌ Erreur lors du prétraitement des données" && exit 1
+                '''
             }
         }
 
-        stage('Sauvegarde des artefacts') {
+        stage('Entraînement du modèle') {
             steps {
-                // Sauvegarder les modèles en tant qu'artefacts de Jenkins
-                archiveArtifacts artifacts: '**/*.pkl', allowEmptyArchive: true
-                // Si vous avez un fichier de résultats, vous pouvez également l'archiver
-                archiveArtifacts artifacts: 'clean_train_reduced.csv', allowEmptyArchive: true
+                bat '''
+                echo "🚀 Début de l'entraînement du modèle..."
+                python train.py || echo "❌ Erreur lors de l'entraînement" && exit 1
+                '''
+            }
+        }
+
+        stage('Évaluation du modèle') {
+            steps {
+                bat '''
+                echo "📊 Évaluation des performances du modèle..."
+                python evaluate.py || echo "❌ Erreur lors de l'évaluation" && exit 1
+                '''
+            }
+        }
+
+        stage('Stockage des artefacts') {
+            steps {
+                archiveArtifacts artifacts: 'rf_model.pkl, dt_model.pkl, ann_model.pkl', fingerprint: true
             }
         }
     }
 
     post {
-        always {
-            // Nettoyage après exécution (supprimer l'environnement virtuel par exemple)
-            cleanWs()
-        }
-
         success {
-            echo 'Pipeline exécuté avec succès !'
+            echo "🎉 Pipeline terminé avec succès ! ✅"
         }
-
         failure {
-            echo 'Une erreur est survenue dans la pipeline.'
+            echo "🚨 Le pipeline a échoué ! Vérifie les logs Jenkins."
         }
     }
 }
