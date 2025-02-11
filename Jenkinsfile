@@ -33,28 +33,20 @@ pipeline {
 
         stage('Prétraitement des données avec Docker') {
             steps {
-                bat '''
-                echo "🚀 Début du prétraitement des données..."
-                python preprocessing.py || echo "❌ Erreur lors du prétraitement des données" && exit 1
-                '''
+                bat 'python preprocessing.py 
+                '
             }
         }
 
         stage('Entraînement du modèle') {
             steps {
-                bat '''
-                echo "🚀 Début de l'entraînement du modèle..."
-                python train.py || echo "❌ Erreur lors de l'entraînement" && exit 1
-                '''
+                bat 'python train.py'
             }
         }
 
         stage('Évaluation du modèle') {
             steps {
-                bat '''
-                echo "📊 Évaluation des performances du modèle..."
-                python evaluate.py || echo "❌ Erreur lors de l'évaluation" && exit 1
-                '''
+                bat 'python evaluate.py'
             }
         }
 
