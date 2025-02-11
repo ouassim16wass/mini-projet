@@ -29,8 +29,8 @@ pipeline {
         stage('Construire l\'image Docker pour l\'application') {
             steps {
                 script {
-                    // Créer l'image Docker à partir du Dockerfile
-                    sh 'docker build -t $DOCKER_IMAGE_NAME:latest .'
+                    // Créer l'image Docker à partir du Dockerfile avec batch
+                    bat 'docker build -t %DOCKER_IMAGE_NAME%:latest .'
                 }
             }
         }
@@ -38,8 +38,8 @@ pipeline {
         stage('Prétraitement des données avec Docker') {
             steps {
                 script {
-                    // Lancer le conteneur pour le prétraitement des données
-                    sh 'docker run --rm -v $(pwd):/app $DOCKER_IMAGE_NAME:latest python preprocessing.py'
+                    // Lancer le conteneur pour le prétraitement des données avec batch
+                    bat 'docker run --rm -v %CD%:/app %DOCKER_IMAGE_NAME%:latest python preprocessing.py'
                 }
             }
         }
@@ -47,8 +47,8 @@ pipeline {
         stage('Entraînement du modèle') {
             steps {
                 script {
-                    // Lancer le conteneur pour l'entraînement du modèle
-                    sh 'docker run --rm -v $(pwd):/app $DOCKER_IMAGE_NAME:latest python train.py'
+                    // Lancer le conteneur pour l'entraînement du modèle avec batch
+                    bat 'docker run --rm -v %CD%:/app %DOCKER_IMAGE_NAME%:latest python train.py'
                 }
             }
         }
@@ -56,8 +56,8 @@ pipeline {
         stage('Évaluation du modèle') {
             steps {
                 script {
-                    // Lancer le conteneur pour l'évaluation du modèle
-                    sh 'docker run --rm -v $(pwd):/app $DOCKER_IMAGE_NAME:latest python evaluate.py'
+                    // Lancer le conteneur pour l'évaluation du modèle avec batch
+                    bat 'docker run --rm -v %CD%:/app %DOCKER_IMAGE_NAME%:latest python evaluate.py'
                 }
             }
         }
@@ -67,9 +67,9 @@ pipeline {
                 script {
                     // Se connecter à DockerHub avec les identifiants Jenkins
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+                        bat 'docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%'
                         // Pousser l'image Docker sur DockerHub
-                        sh 'docker push $DOCKER_USERNAME/$DOCKER_IMAGE_NAME:latest'
+                        bat 'docker push %DOCKER_USERNAME%/%DOCKER_IMAGE_NAME%:latest'
                     }
                 }
             }
