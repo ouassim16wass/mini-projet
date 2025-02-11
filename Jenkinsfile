@@ -27,25 +27,28 @@ pipeline {
 
         stage('Installer les dépendances') {
             steps {
+                bat 'chcp 65001' // Définit l'encodage en UTF-8
                 bat 'python -m pip install --no-cache-dir -r requirements.txt || exit 1'
             }
         }
 
         stage('Prétraitement des données avec Docker') {
             steps {
-                bat 'python preprocessing.py 
-                '
+                bat 'chcp 65001' // Définit l'encodage en UTF-8
+                bat 'python preprocessing.py'
             }
         }
 
         stage('Entraînement du modèle') {
             steps {
+                bat 'chcp 65001' // Définit l'encodage en UTF-8
                 bat 'python train.py'
             }
         }
 
         stage('Évaluation du modèle') {
             steps {
+                bat 'chcp 65001' // Définit l'encodage en UTF-8
                 bat 'python evaluate.py'
             }
         }
