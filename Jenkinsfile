@@ -4,6 +4,8 @@ pipeline {
     environment {
         DATA_PATH = "data/"
         MODEL_PATH = "models/"
+        TRAIN_FILE = "train.csv" // Spécifie le chemin absolu ou relatif
+        TEST_FILE = "test.csv"   // Spécifie le chemin absolu ou relatif
     }
 
     stages {
@@ -22,13 +24,13 @@ pipeline {
         stage('Prétraitement des données') {
             steps {
                 echo "🚀 Début du prétraitement des données..."
-                bat 'python preprocessing.py'
+                bat "python preprocessing.py ${TRAIN_FILE} ${TEST_FILE}"
             }
         }
 
         stage('Entraînement du modèle') {
             steps {
-                echo "🚀 Début de l\'entraînement du modèle..."
+                echo "🚀 Début de l'entraînement du modèle..."
                 bat '''
                 chcp 65001
                 python train.py || echo "❌ Erreur lors de l'entraînement" && exit 1
