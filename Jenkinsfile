@@ -15,36 +15,36 @@ pipeline {
 
         stage('Installer les dépendances') {
             steps {
-                sh 'python3 -m pip install --no-cache-dir -r requirements.txt'
+                bat 'python -m pip install --no-cache-dir -r requirements.txt'
             }
         }
 
         stage('Prétraitement des données avec Docker') {
             steps {
-                sh '''
+                bat '''
                 echo "🚀 Construction de l'image Docker pour le prétraitement..."
-                docker build -t mini-projet-preprocessing . || { echo "⚠️ Erreur lors du build Docker"; exit 1; }
+                docker build -t mini-projet-preprocessing . || echo "⚠️ Erreur lors du build Docker" && exit 1
 
                 echo "⚡ Exécution du conteneur de prétraitement..."
-                docker run --rm -v $PWD/data:/app/data mini-projet-preprocessing || { echo "⚠️ Erreur lors de l'exécution Docker"; exit 1; }
+                docker run --rm -v %cd%/data:/app/data mini-projet-preprocessing || echo "⚠️ Erreur lors de l'exécution Docker" && exit 1
                 '''
             }
         }
 
         stage('Entraînement du modèle') {
             steps {
-                sh '''
+                bat '''
                 echo "🚀 Début de l'entraînement du modèle..."
-                python3 train.py || { echo "❌ Erreur lors de l'entraînement"; exit 1; }
+                python train.py || echo "❌ Erreur lors de l'entraînement" && exit 1
                 '''
             }
         }
 
         stage('Évaluation du modèle') {
             steps {
-                sh '''
+                bat '''
                 echo "📊 Évaluation des performances du modèle..."
-                python3 evaluate.py || { echo "❌ Erreur lors de l'évaluation"; exit 1; }
+                python evaluate.py || echo "❌ Erreur lors de l'évaluation" && exit 1
                 '''
             }
         }
