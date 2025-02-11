@@ -19,22 +19,18 @@ pipeline {
             }
         }
 
-        stage('Prétraitement des données avec Docker') {
+        stage('Prétraitement des données') {
             steps {
-                bat '''
-                echo "🚀 Construction de l'image Docker pour le prétraitement..."
-                docker build -t mini-projet-preprocessing . || echo "⚠️ Erreur lors du build Docker" && exit 1
-
-                echo "⚡ Exécution du conteneur de prétraitement..."
-                docker run --rm -v %cd%/data:/app/data mini-projet-preprocessing || echo "⚠️ Erreur lors de l'exécution Docker" && exit 1
-                '''
+                echo "🚀 Début du prétraitement des données..."
+                bat 'python preprocess.py'
             }
         }
 
         stage('Entraînement du modèle') {
             steps {
+                echo "🚀 Début de l\'entraînement du modèle..."
                 bat '''
-                echo "🚀 Début de l'entraînement du modèle..."
+                chcp 65001
                 python train.py || echo "❌ Erreur lors de l'entraînement" && exit 1
                 '''
             }
@@ -42,8 +38,9 @@ pipeline {
 
         stage('Évaluation du modèle') {
             steps {
-                bat '''
                 echo "📊 Évaluation des performances du modèle..."
+                bat '''
+                chcp 65001
                 python evaluate.py || echo "❌ Erreur lors de l'évaluation" && exit 1
                 '''
             }
