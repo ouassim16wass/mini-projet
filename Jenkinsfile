@@ -22,7 +22,7 @@ pipeline {
         stage('Prétraitement des données') {
             steps {
                 echo "🚀 Début du prétraitement des données..."
-                bat 'python preprocess.py'
+                bat 'python preprocessing.py'
             }
         }
 
