@@ -22,7 +22,7 @@ pipeline {
                 script {
                     // Installer les dépendances avec pip à partir du fichier requirements.txt
                     echo "📦 Installation des dépendances..."
-                    sh 'python -m pip install --no-cache-dir -r requirements.txt || { echo "❌ Erreur lors de l\'installation des dépendances"; exit 1; }'
+                    bat 'python -m pip install --no-cache-dir -r requirements.txt || echo "❌ Erreur lors de l\'installation des dépendances" && exit 1'
                 }
             }
         }
@@ -47,7 +47,7 @@ pipeline {
                 script {
                     // Lancer l'entraînement du modèle
                     echo "🚀 Début de l'entraînement du modèle..."
-                    sh 'python train.py || { echo "❌ Erreur lors de l\'entraînement du modèle"; exit 1; }'
+                    bat 'python train.py || echo "❌ Erreur lors de l\'entraînement du modèle" && exit 1'
                 }
             }
         }
@@ -57,7 +57,7 @@ pipeline {
                 script {
                     // Évaluer les performances du modèle
                     echo "📊 Évaluation des performances du modèle..."
-                    sh 'python evaluate.py || { echo "❌ Erreur lors de l\'évaluation du modèle"; exit 1; }'
+                    bat 'python evaluate.py || echo "❌ Erreur lors de l\'évaluation du modèle" && exit 1'
                 }
             }
         }
