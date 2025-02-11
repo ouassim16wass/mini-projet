@@ -2,75 +2,73 @@ pipeline {
     agent any
 
     environment {
-        DATA_PATH = ""  // Les fichiers sont à la racine, donc pas de sous-dossier
-        MODEL_PATH = "models/"
+        // Définir les variables d'environnement si nécessaire
+        PYTHON_ENV = "venv"
     }
 
     stages {
-        stage('Cloner le code') {
-            steps {
-                git branch: 'main', url: 'https://github.com/ouassim16wass/mini-projet.git'
-            }
-        }
-
-        stage('Vérifier les fichiers de données') {
+        stage('Installation des dépendances') {
             steps {
                 script {
-                    if (fileExists('train.csv') && fileExists('test.csv')) {
-                        echo "✔️ Les fichiers de données existent, traitement lancé."
-                    } else {
-                        error "❌ Les fichiers de données train.csv et test.csv sont manquants."
-                    }
+                    // Créer un environnement virtuel pour Python
+                    sh 'python3 -m venv ${env.PYTHON_ENV}'
+                    sh './${env.PYTHON_ENV}/bin/pip install --upgrade pip'
+                    sh './${env.PYTHON_ENV}/bin/pip install -r requirements.txt' // Assurez-vous que requirements.txt contient les dépendances nécessaires
                 }
             }
         }
 
-        stage('Installer les dépendances') {
+        stage('Prétraitement des données') {
             steps {
-                bat 'python -m pip install --no-cache-dir -r requirements.txt || exit 1'
+                script {
+                    // Exécuter le script preprocessing.py
+                    sh './${env.PYTHON_ENV}/bin/python preprocessing.py'
+                }
             }
         }
 
-        stage('Prétraitement des données avec Docker') {
+        stage('Entraînement des modèles') {
             steps {
-                bat '''
-                echo "🚀 Début du prétraitement des données..."
-                python preprocessing.py || echo "❌ Erreur lors du prétraitement des données" && exit 1
-                '''
+                script {
+                    // Exécuter le script d'entraînement des modèles
+                    sh './${env.PYTHON_ENV}/bin/python train.py'
+                }
             }
         }
 
-        stage('Entraînement du modèle') {
+        stage('Évaluation des modèles') {
             steps {
-                bat '''
-                echo "🚀 Début de l'entraînement du modèle..."
-                python train.py || echo "❌ Erreur lors de l'entraînement" && exit 1
-                '''
+                script {
+                    // Exécuter le script d'évaluation des modèles
+                    sh './${env.PYTHON_ENV}/bin/python evaluate.py'
+                }
             }
         }
 
-        stage('Évaluation du modèle') {
+        stage('Sauvegarde des artefacts') {
             steps {
-                bat '''
-                echo "📊 Évaluation des performances du modèle..."
-                python evaluate.py || echo "❌ Erreur lors de l'évaluation" && exit 1
-                '''
-            }
-        }
-
-        stage('Stockage des artefacts') {
-            steps {
-                archiveArtifacts artifacts: 'rf_model.pkl, dt_model.pkl, ann_model.pkl', fingerprint: true
+                script {
+                    // Sauvegarder les modèles en tant qu'artefacts de Jenkins
+                    archiveArtifacts artifacts: '**/*.pkl', allowEmptyArchive: true
+                    // Si vous avez un fichier de résultats, vous pouvez également l'archiver
+                    archiveArtifacts artifacts: 'clean_train_reduced.csv', allowEmptyArchive: true
+                }
             }
         }
     }
 
     post {
-        success {
-            echo "🎉 Pipeline terminé avec succès ! ✅"
+        always {
+            // Nettoyage après exécution (supprimer l'environnement virtuel par exemple)
+            cleanWs()
         }
+
+        success {
+            echo 'Pipeline exécuté avec succès !'
+        }
+
         failure {
-            echo "🚨 Le pipeline a échoué ! Vérifie les logs Jenkins."
+            echo 'Une erreur est survenue dans la pipeline.'
         }
     }
 }
