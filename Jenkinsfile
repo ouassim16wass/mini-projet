@@ -9,11 +9,10 @@ pipeline {
     stages {
         stage('Cloner le code') {
             steps {
-                git branch: 'main', url: 'https://github.com/yassindoghriii/MLOPS.git'
+                git branch: 'main', url: 'https://github.com/ouassim16wass/mini-projet.git'
             }
         }
 
-        
         stage('Installer les dépendances') {
             steps {
                 sh 'python3 -m pip install --no-cache-dir -r requirements.txt'
@@ -23,11 +22,11 @@ pipeline {
         stage('Prétraitement des données avec Docker') {
             steps {
                 sh '''
-                echo "🚀 Construction de l'image Docker..."
-                docker build -t mlops-preprocessing . || { echo "⚠️ Erreur lors du build Docker"; exit 1; }
+                echo "🚀 Construction de l'image Docker pour le prétraitement..."
+                docker build -t mini-projet-preprocessing . || { echo "⚠️ Erreur lors du build Docker"; exit 1; }
 
                 echo "⚡ Exécution du conteneur de prétraitement..."
-                docker run --rm -v $PWD/data:/app/data mlops-preprocessing || { echo "⚠️ Erreur lors de l'exécution Docker"; exit 1; }
+                docker run --rm -v $PWD/data:/app/data mini-projet-preprocessing || { echo "⚠️ Erreur lors de l'exécution Docker"; exit 1; }
                 '''
             }
         }
@@ -52,7 +51,7 @@ pipeline {
 
         stage('Stockage des artefacts') {
             steps {
-                archiveArtifacts artifacts: 'rf_model.pkl, dt_model.pkl, ann_model.pkl', fingerprint: true
+                archiveArtifacts artifacts: 'models/*.pkl', fingerprint: true
             }
         }
     }
