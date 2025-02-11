@@ -5,7 +5,7 @@ pipeline {
         DATA_PATH = ""  // Les fichiers sont à la racine, donc pas de sous-dossier
         MODEL_PATH = "models/"
         DOCKER_IMAGE_NAME = "mini-projet-model"  // Nom de l'image Docker
-        DOCKER_REGISTRY = "wassim33"  // Remplace par ton nom d'utilisateur Docker Hub
+        DOCKER_REGISTRY = "wassim33"  // Ton nom d'utilisateur Docker Hub
     }
 
     stages {
@@ -63,8 +63,10 @@ pipeline {
 
         stage('Push l\'image Docker vers Docker Hub') {
             steps {
-                bat 'docker login -u yourdockerhubusername -p yourpassword'  // Remplace par tes credentials Docker Hub
-                bat 'docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE_NAME%:latest'
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    bat "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                    bat "docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE_NAME%:latest"
+                }
             }
         }
 
