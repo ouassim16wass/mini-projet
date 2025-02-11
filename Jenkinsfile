@@ -28,7 +28,7 @@ pipeline {
             steps {
                 echo "🧹 Début du prétraitement des données..."
                 bat '''
-                python preprocess.py || { echo " Erreur lors du prétraitement"; exit 1; }
+                python preprocessing.py || { echo " Erreur lors du prétraitement"; exit 1; }
                 '''
             }
         }
