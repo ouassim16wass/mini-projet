@@ -11,9 +11,9 @@ pipeline {
             steps {
                 script {
                     // Créer un environnement virtuel pour Python
-                    sh 'python3 -m venv ${env.PYTHON_ENV}'
-                    sh './${env.PYTHON_ENV}/bin/pip install --upgrade pip'
-                    sh './${env.PYTHON_ENV}/bin/pip install -r requirements.txt' // Assurez-vous que requirements.txt contient les dépendances nécessaires
+                    bat 'python -m venv ${env.PYTHON_ENV}'
+                    bat '.\\${env.PYTHON_ENV}\\Scripts\\pip install --upgrade pip'
+                    bat '.\\${env.PYTHON_ENV}\\Scripts\\pip install -r requirements.txt' // Assurez-vous que requirements.txt contient les dépendances nécessaires
                 }
             }
         }
@@ -22,7 +22,7 @@ pipeline {
             steps {
                 script {
                     // Exécuter le script preprocessing.py
-                    sh './${env.PYTHON_ENV}/bin/python preprocessing.py'
+                    bat '.\\${env.PYTHON_ENV}\\Scripts\\python preprocessing.py'
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
             steps {
                 script {
                     // Exécuter le script d'entraînement des modèles
-                    sh './${env.PYTHON_ENV}/bin/python train.py'
+                    bat '.\\${env.PYTHON_ENV}\\Scripts\\python train.py'
                 }
             }
         }
@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     // Exécuter le script d'évaluation des modèles
-                    sh './${env.PYTHON_ENV}/bin/python evaluate.py'
+                    bat '.\\${env.PYTHON_ENV}\\Scripts\\python evaluate.py'
                 }
             }
         }
