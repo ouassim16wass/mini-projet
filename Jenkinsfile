@@ -4,6 +4,8 @@ pipeline {
     environment {
         DATA_PATH = ""  // Les fichiers sont à la racine, donc pas de sous-dossier
         MODEL_PATH = "models/"
+        DOCKER_IMAGE_NAME = "mini-projet-model"  // Nom de l'image Docker
+        DOCKER_REGISTRY = "yourdockerhubusername"  // Remplace par ton nom d'utilisateur Docker Hub
     }
 
     stages {
@@ -50,6 +52,19 @@ pipeline {
             steps {
                 bat 'chcp 65001' // Définit l'encodage en UTF-8
                 bat 'python evaluate.py'
+            }
+        }
+
+        stage('Construire l\'image Docker avec le modèle') {
+            steps {
+                bat 'docker build -t %DOCKER_REGISTRY%/%DOCKER_IMAGE_NAME%:latest .'
+            }
+        }
+
+        stage('Push l\'image Docker vers Docker Hub') {
+            steps {
+                bat 'docker login -u yourdockerhubusername -p yourpassword'  // Remplace par tes credentials Docker Hub
+                bat 'docker push %DOCKER_REGISTRY%/%DOCKER_IMAGE_NAME%:latest'
             }
         }
 
