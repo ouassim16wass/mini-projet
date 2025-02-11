@@ -5,7 +5,7 @@ pipeline {
         DATA_PATH = ""  // Les fichiers sont à la racine, donc pas de sous-dossier
         MODEL_PATH = "models/"
         DOCKER_IMAGE_NAME = "mini-projet-model"  // Nom de l'image Docker
-        DOCKER_REGISTRY = "yourdockerhubusername"  // Remplace par ton nom d'utilisateur Docker Hub
+        DOCKER_REGISTRY = "wassim33"  // Remplace par ton nom d'utilisateur Docker Hub
     }
 
     stages {
