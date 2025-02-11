@@ -55,6 +55,13 @@ pipeline {
             }
         }
 
+        stage('Déployer les prédictions') {
+            steps {
+                bat 'chcp 65001' // Définit l'encodage en UTF-8
+                bat 'python deploy.py' // Ajoute cette ligne pour générer les prédictions
+            }
+        }
+
         stage('Construire l\'image Docker avec le modèle') {
             steps {
                 bat 'docker build -t %DOCKER_REGISTRY%/%DOCKER_IMAGE_NAME%:latest .'
