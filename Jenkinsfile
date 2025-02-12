@@ -77,22 +77,22 @@ pipeline {
             }
         }
 
+        stage('Construire et déployer l\'image Flask') {
+            steps {
+                bat 'docker build -t %DOCKER_REGISTRY%/flask-app:latest .'
+                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    bat "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                    bat "docker push %DOCKER_REGISTRY%/flask-app:latest"
+                }
+            }
+        }
+
         stage('Stockage des artefacts') {
             steps {
                 archiveArtifacts artifacts: 'rf_model.pkl, dt_model.pkl, ann_model.pkl', fingerprint: true
             }
         }
     }
-    stage('Construire et déployer l\'image Flask') {
-    steps {
-        bat 'docker build -t %DOCKER_REGISTRY%/flask-app:latest .'
-        withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-            bat "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
-            bat "docker push %DOCKER_REGISTRY%/flask-app:latest"
-        }
-    }
-}
-
 
     post {
         success {
